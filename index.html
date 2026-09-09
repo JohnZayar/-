@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yangon Taxi Fare - ခရီးခ ခန့်မှန်းစက်</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-title">
+                <span class="taxi-icon">🚕</span>
+                <div>
+                    <h1>Yangon Taxi Fare</h1>
+                    <p>ခရီးခ ခန့်မှန်းစက် & YBS လမ်းညွှန်</p>
+                </div>
+            </div>
+        </header>
+
+        <section class="fare-display">
+            <p>သင့်တင်သော ခန့်မှန်းခ</p>
+            <div class="amount-box">
+                <span id="total-fare">0</span>
+                <span>Ks</span>
+            </div>
+            <div class="fare-breakdown">
+                <span>စတင်ခ <b id="base-fare">0</b></span>
+                <span>KM ဖိုး <b id="km-fare">0</b></span>
+                <span>စောင့်ခ <b id="waiting-fare">0</b></span>
+            </div>
+        </section>
+
+        <main>
+            <div class="location-card">
+                <label>📍 ထွက်ခွာမည့်နေရာ (Start Location)</label>
+                <div class="input-group">
+                    <input type="text" id="start-location" placeholder="ထွက်ခွာမည့်နေရာ ရွေးပါ">
+                    <button id="gps-btn" type="button">🛰️ GPS</button>
+                </div>
+            </div>
+
+            <div class="location-card">
+                <label>🏁 ရောက်ရှိမည့်နေရာ (Destination)</label>
+                <input type="text" id="end-location" placeholder="ရောက်ရှိမည့်နေရာ ရွေးပါ">
+            </div>
+
+            <div class="bus-results-container">
+                <h3>🚦 ဘယ်ကားစီးရင် အဆင်ပြေမလဲ</h3>
+                <div id="bus-recommendations">
+                    <p style="font-size:13px; color:#666;">နေရာနှစ်ခု သတ်မှတ်ပေးပါ...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
