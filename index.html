@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YBS & YPS Route Finder</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+        }
+        body {
+            font-family: 'Pyidaungsu', sans-serif, system-ui, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h2 { margin-top: 0; font-size: 1.25rem; color: var(--primary-color); }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { opacity: 0.9; }
+        .result-box {
+            margin-top: 15px;
+            padding: 12px;
+            background: #f9fafb;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+        }
+        ul { padding-left: 20px; margin: 5px 0; }
+        li { margin-bottom: 4px; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>YBS & YPS Route Finder</h1>
+    </header>
+
+    <div class="container">
+        <!-- Bus Route Search -->
+        <div class="card">
+            <h2>🚌 YBS ကားလမ်းကြောင်း ရှာရန်</h2>
+            <div class="form-group">
+                <label for="busSelect">ကားနံပါတ် ရွေးပါ</label>
+                <select id="busSelect" onchange="showBusRoute()">
+                    <option value="">-- ကားနံပါတ် ရွေးချယ်ပါ --</option>
+                    <option value="YBS-20">YBS 20 (စိန်ဂေဟာ - သန်လျင်)</option>
+                    <option value="YBS-56">YBS 56 (အင်းစိန် - မြေနီကုန်း - ဗိုလ်တထောင်)</option>
+                    <option value="YBS-115">YBS 115 (လှိုင်သာယာ - သုဝဏ္ဏ)</option>
+                </select>
+            </div>
+            <div id="busRouteResult" class="result-box" style="display:none;"></div>
+        </div>
+
+        <!-- Point to Point Search -->
+        <div class="card">
+            <h2>📍 ထွက်ခွာမည့်နေရာမှ ရောက်လိုရာသို့ ရှာရန်</h2>
+            <div class="form-group">
+                <label for="startPoint">စတင်မည့် မှတ်တိုင်</label>
+                <input type="text" id="startPoint" placeholder="ဥပမာ - လှည်းတန်း">
+            </div>
+            <div class="form-group">
+                <label for="endPoint">သွားရောက်မည့် မှတ်တိုင်</label>
+                <input type="text" id="endPoint" placeholder="ဥပမာ - သုဝဏ္ဏ">
+            </div>
+            <button onclick="searchRoute()">လမ်းကြောင်း ရှာမည်</button>
+            <div id="searchResult" class="result-box" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const busData = {
+            "YBS-20": {
+                name: "YBS 20",
+                route: ["သန်လျင်တံတား (စက်မှု)", "ပုဇွန်တောင်", "ဘိုထောင့်ကျော်", "ဗိုလ်ချုပ်လမ်း", "စိန်ဂေဟာ"]
+            },
+            "YBS-56": {
+                name: "YBS 56",
+                route: ["အင်းစိန်ဈေး", "လှည်းတန်း", "စမ်းချောင်း", "မြေနီကုန်း", "ဗိုလ်တထောင်"]
+            },
+            "YBS-115": {
+                name: "YBS 115",
+                route: ["လှိုင်သာယာ (၁၄ ရပ်ကွက်)", "လှည်းတန်း", "မရမ်းကုန်း", "သင်ဃာကျွန်း", "သုဝဏ္ဏ"]
+            }
+        };
+
+        function showBusRoute() {
+            const selectedBus = document.getElementById('busSelect').value;
+            const resultBox = document.getElementById('busRouteResult');
+            
+            if (!selectedBus) {
+                resultBox.style.display = 'none';
+                return;
+            }
+
+            const busInfo = busData[selectedBus];
+            let html = `<strong>${busInfo.name} ဖြတ်သန်းမည့် မှတ်တိုင်များ:</strong><ul>`;
+            busInfo.route.forEach(stop => {
+                html += `<li>${stop}</li>`;
+            });
+            html += `</ul>`;
+
+            resultBox.innerHTML = html;
+            resultBox.style.display = 'block';
+        }
+
+        function searchRoute() {
+            const start = document.getElementById('startPoint').value.trim();
+            const end = document.getElementById('endPoint').value.trim();
+            const searchResultBox = document.getElementById('searchResult');
+
+            if (!start || !end) {
+                alert("စတင်မည့်နေရာနှင့် ရောက်လိုရာနေရာ နှစ်ခုစလုံးကို ဖြည့်ပါ။");
+                return;
+            }
+
+            let matchedBuses = [];
+            for (let key in busData) {
+                let stops = busData[key].route;
+                if (stops.includes(start) || stops.includes(end)) {
+                    matchedBuses.push(busData[key].name);
+                }
+            }
+
+            let html = `<strong>${start} မှ ${end} သို့ စီးနိုင်သော လမ်းကြောင်းများ:</strong>`;
+            if (matchedBuses.length > 0) {
+                html += `<ul>`;
+                matchedBuses.forEach(b => {
+                    html += `<li><strong>${b}</strong></li>`;
+                });
+                html += `</ul>`;
+            } else {
+                html += `<p style="color: red; margin: 5px 0;">တိုက်ရိုက်ကား ရှာမတွေ့ပါ။</p>`;
+            }
+
+            searchResultBox.innerHTML = html;
+            searchResultBox.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
